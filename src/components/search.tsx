@@ -74,15 +74,13 @@ const SearchBar = (props:ISearchProps) => {
       ) => {
         debounceFn(event.target.value);
       };
-
-      console.log(inputValue, data)
   return (
     <Search>
       <SearchIconWrapper>
         <SearchIcon fontSize="small" color="disabled" />
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder="Search…"
+        placeholder="Search by name..."
         inputProps={{ "aria-label": "search" }}
         onChange={handleChange}
       />

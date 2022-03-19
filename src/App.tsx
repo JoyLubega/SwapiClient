@@ -1,6 +1,6 @@
 import "./App.css";
 import People from "./components/People";
-// import Person from "./components/Person";
+import Person from "./components/Person";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { BrowserRouter as Router, useRoutes,} from "react-router-dom";
 
@@ -13,8 +13,8 @@ const client = new ApolloClient({
 const Links = () => {
   let routes = useRoutes([
     { path: "/", element: <People /> },
-    // { path: "component2", element: <Component2 /> },
-    // ...
+    { path: "/:name", element: <Person /> },
+    
   ]);
   return routes;
 };

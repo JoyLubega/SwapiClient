@@ -1,8 +1,9 @@
 import React from "react";
 import { styled } from "@mui/system";
+import { useNavigate } from "react-router-dom";
+import { IResponse, IResult } from "../dataTypes";
 
-import { IResponse } from '../dataTypes'
-
+import Skeleton from "@mui/material/Skeleton";
 
 const grey = {
   50: "#F3F6F9",
@@ -39,15 +40,43 @@ const TableWrapper = styled("div")(
   `
 );
 
-interface ITableProps{
-    people:IResponse
-    loading: boolean
+const StyledTableRow = styled("tr")(({ theme }) => ({
+  cursor: "pointer",
+  "&:hover": {
+    backgroundColor: "#aaeeff",
+  },
+}));
+
+interface ITableProps {
+  people: IResponse;
+  loading: boolean;
 }
-export default function Table(props:ITableProps) {
-  
+export default function Table(props: ITableProps) {
+  const navigate = useNavigate();
+
+  const getDetails = (row: any) => {
+    navigate(`/${row.name}`, { state: row });
+  };
+
+  const getSkeleton = () => {
+    return Array.from(Array(10).keys()).map((val, index) => {
+      return (
+        <StyledTableRow key={index}>
+          <td>
+            {" "}
+            <Skeleton animation="wave" />
+          </td>
+          <td style={{ width: "auto" }} align="right"><Skeleton animation="wave" /></td>
+          <td style={{ width: 120 }} align="right"><Skeleton animation="wave" /></td>
+          <td style={{ width: 120 }} align="right"><Skeleton animation="wave" /></td>
+          <td style={{ width: 120 }} align="right"><Skeleton animation="wave" /></td>
+        </StyledTableRow>
+      );
+    });
+  };
   return (
-    <TableWrapper sx={{ width: "100%", maxWidth: "100%", marginTop:'20px' }}>
-      <table aria-label="custom pagination table">
+    <TableWrapper sx={{ width: "100%", maxWidth: "100%", marginTop: "20px" }}>
+      <table aria-label="table">
         <thead>
           <tr>
             <th>Name</th>
@@ -58,10 +87,11 @@ export default function Table(props:ITableProps) {
           </tr>
         </thead>
         <tbody>
-            {props.loading && 'Loading.....'}
-          {!props.loading && props.people &&
-            props.people.results.map((row) => (
-              <tr key={row.name}>
+          {props.loading && getSkeleton()}
+          {!props.loading &&
+            props.people &&
+            props.people.results.map((row: IResult) => (
+              <StyledTableRow key={row.name} onClick={() => getDetails(row)}>
                 <td>{row.name}</td>
                 <td style={{ width: "auto" }} align="right">
                   {row.gender}
@@ -75,7 +105,7 @@ export default function Table(props:ITableProps) {
                 <td style={{ width: 120 }} align="right">
                   {row.homeworld}
                 </td>
-              </tr>
+              </StyledTableRow>
             ))}
         </tbody>
       </table>

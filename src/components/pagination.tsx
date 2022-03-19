@@ -1,53 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, gql } from "@apollo/client";
+import Box from "@mui/material/Box";
+import Pagination from "@mui/material/Pagination";
 
-const PEOPLE_PER_PAGE_QUERY = gql`
-  query People($page: Int) {
-    people(page: $page) {
-      count
-      next
-      previous
-      results {
-        name
-        height
-        mass
-        gender
-        homeworld
-      }
-    }
-  }
-`;
+import { useQuery } from "@apollo/client";
 
-interface IProps {
-  data: IResponse;
-  loading: boolean;
-}
+import { IResponse } from "../dataTypes";
 
-interface IResult {
-  name: string;
-  gender: string;
-  mass: number;
-  height: number;
-  homeworld: string;
+import { PEOPLE_PER_PAGE_QUERY } from "../queries";
+
+
+interface IPaginationProps {
+  getUpdatedPeople: (data: IResponse, loading: boolean) => void;
 }
-interface IResponse {
-  count: number;
-  previous: string;
-  next: string;
-  results: IResult[];
-}
-interface IProps {
-  data: IResponse;
-  loading: boolean;
-}
-const initial = {
-  count: 0,
-  previous: "",
-  next: "",
-  results: [],
-};
-export const usePagination = (page: number): IProps => {
-  const [people, setPeople] = useState<IResponse>(initial);
+export const PaginationComponent = (props: IPaginationProps) => {
+  const [page, setPage] = useState(1);
   const { loading, error, data } = useQuery(PEOPLE_PER_PAGE_QUERY, {
     variables: { page: page },
     fetchPolicy: "cache-and-network",
@@ -55,12 +21,28 @@ export const usePagination = (page: number): IProps => {
 
   useEffect(() => {
     if (!loading) {
-      setPeople(data.people[0]);
+      props.getUpdatedPeople(data.people[0], loading);
     }
   }, [loading]);
 
-  return {
-    data: people,
-    loading,
+  const handleChangePage = (
+    event: React.ChangeEvent<HTMLButtonElement | unknown>,
+    page: number
+  ) => {
+    setPage(page);
   };
+
+  return (
+    <Box sx={{ marginTop:'15px'}}>
+      {
+        <Pagination
+          page={page}
+          onChange={handleChangePage}
+          count={ !data ? 1 : Math.ceil(data.people[0].count / 10)}
+          variant="outlined"
+          color="secondary"
+        />
+      }
+    </Box>
+  );
 };

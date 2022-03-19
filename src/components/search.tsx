@@ -1,28 +1,14 @@
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, useEffect} from "react";
 
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import {debounce} from 'lodash';
 
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 
-const SEARCH_QUERY = gql`
-query People($name: String) {
-    person(name: $name) {
-      count
-      next
-      previous
-      results {
-        name
-        height
-        mass
-        gender
-        homeworld
-      }
-    }
-  }
-`;
+import { IResponse } from '../dataTypes'
+import { SEARCH_QUERY } from "../queries";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -62,16 +48,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
   },
 }));
-const SearchBar = () => {
+interface ISearchProps{
+    getUpdatedPeople:(data: IResponse, loading:boolean)=>void
+    
+}
+const SearchBar = (props:ISearchProps) => {
     const [ inputValue, setInputValue] =useState<string>('')
     const debounceFn = useCallback(debounce((query:string)=> setInputValue(query), 1000), []);
     
-    const { loading, error, data } = useQuery(SEARCH_QUERY, {
+    const { loading, data } = useQuery(SEARCH_QUERY, {
         variables: {name: inputValue},
         fetchPolicy: "cache-and-network",
       });
     
       
+    useEffect(()=>{
+        if(inputValue && !loading){
+            props.getUpdatedPeople(data.person[0], loading)
+        }
+    },[loading, inputValue])
+
     const handleChange = (
         event: React.ChangeEvent<HTMLInputElement>,
 

@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { styled } from "@mui/system";
 
-import Pagination from "@mui/material/Pagination";
-import { usePagination } from "./pagination";
+import { IResponse } from '../dataTypes'
 
-const blue = {
-  200: "#A5D8FF",
-  400: "#3399FF",
-};
 
 const grey = {
   50: "#F3F6F9",
@@ -22,7 +17,7 @@ const grey = {
   900: "#1A2027",
 };
 
-const Root = styled("div")(
+const TableWrapper = styled("div")(
   ({ theme }) => `
   table {
     font-family: IBM Plex Sans, sans-serif;
@@ -44,22 +39,14 @@ const Root = styled("div")(
   `
 );
 
-export default function UnstyledTable() {
-  const [page, setPage] = useState(1);
-  const result = usePagination(page);
-  
-  const { loading, data } = result;
-
-  const handleChangePage = (
-    event: React.ChangeEvent<HTMLButtonElement | unknown>,
-    page: number
-  ) => {
-    setPage(page);
-  };
-
+interface ITableProps{
+    people:IResponse
+    loading: boolean
+}
+export default function Table(props:ITableProps) {
   
   return (
-    <Root sx={{ width: "70%", maxWidth: "100%" }}>
+    <TableWrapper sx={{ width: "100%", maxWidth: "100%", marginTop:'20px' }}>
       <table aria-label="custom pagination table">
         <thead>
           <tr>
@@ -71,8 +58,9 @@ export default function UnstyledTable() {
           </tr>
         </thead>
         <tbody>
-          {data &&
-            data.results.map((row) => (
+            {props.loading && 'Loading.....'}
+          {!props.loading && props.people &&
+            props.people.results.map((row) => (
               <tr key={row.name}>
                 <td>{row.name}</td>
                 <td style={{ width: "auto" }} align="right">
@@ -91,13 +79,6 @@ export default function UnstyledTable() {
             ))}
         </tbody>
       </table>
-      <Pagination
-        page={page}
-        onChange={handleChangePage}
-        count={Math.ceil(data.count / 10)}
-        variant="outlined"
-        color="secondary"
-      />
-    </Root>
+    </TableWrapper>
   );
 }
